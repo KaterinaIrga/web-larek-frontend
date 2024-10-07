@@ -173,28 +173,14 @@ yarn build
 ### Интерфейс ICardView
 Описывает карточку товара. Интерфейс относится к слою представления.
 
-``export interface ICardView {
-title: HTMLTitleElement;
-image: HTMLImageElement;
-category: HTMLElement;
-description: HTMLElement;
-price: HTMLElement;}``
-
-  export interface ICardView {
+````
+export interface ICardView {
   title: HTMLTitleElement;
   image: HTMLImageElement;
   category: HTMLElement;
   description: HTMLElement;
   price: HTMLElement;}
-
-`title: HTMLTitleElement;`
-
-````export interface ICardView {
-title: HTMLTitleElement;
-image: HTMLImageElement;
-category: HTMLElement;
-description: HTMLElement;
-price: HTMLElement;}````
+````
 
 **Поля интерфейса**
 - title - поле содержит заголовок карточки (тип поля - HTMLTitleElement);
