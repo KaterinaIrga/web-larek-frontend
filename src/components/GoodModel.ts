@@ -22,6 +22,4 @@ export class GoodModel {
   getGoodList():IGood[] {
     return this.itemsList
   };
-
-  GenerateNewID():number {};
 }

@@ -10,11 +10,22 @@ export type GoodCategory = "софт-скил" | "другое" | "дополн�
 
 type Price = number | null;
 export type PayType = "Онлайн" | "При получении"
+export type CardType = "minimalCard" | "mediumCard" | "standartCard";
 
 export interface IModalView {
-  title: HTMLTitleElement;
+  //title: HTMLTitleElement;
   content: HTMLElement;
   exitButton: HTMLButtonElement;
+}
+
+export interface IHeaderView {
+  logo: HTMLElement;
+  basketButton: HTMLButtonElement;  
+  counter: HTMLElement;
+}
+
+export interface IMainView { 
+  gallery: HTMLElement;
 }
 
 export interface IForm {
@@ -22,7 +33,6 @@ export interface IForm {
   buttonText: string;
   submit: HTMLButtonElement;
   setPlaceholder(element: HTMLInputElement, value: string): void  ;
-  setHendler(element: HTMLElement, event:Event, hendlerFunction: Function): void;
   getValue(element: HTMLElement): void   ;
   clear(): void ;
 }
@@ -40,7 +50,6 @@ export interface IOrderView {
 } */
 
 export interface IOrderModel {
-  idOrder: number;
   address: string;
   payType: PayType;
   email: string;//добавить шаблон
@@ -48,7 +57,7 @@ export interface IOrderModel {
   summ: number;
 }
 
-export interface ICardView {
+export interface ICardView {//добавлять ли сюда поля для 3х типов карточки?
   title: HTMLTitleElement;
   image: HTMLImageElement;
   category: HTMLElement;
@@ -57,35 +66,27 @@ export interface ICardView {
 
 }
 
-export interface IOrderSucsessView {
+export interface IOrderSucsessView { // Наверно, тоже переделать на 1 карточку и case
   image: HTMLImageElement;
   title: HTMLElement;
   summ: HTMLElement;
 }
 
-interface IKioiskAPI {
-
-}
-export interface IBusketItemView extends ICardView{
-  deleteItem(elem: HTMLElement): void ;
-  showGoodCard(elem: HTMLElement): HTMLElement ;
-}
-
-export interface IBusketView {
+export interface IBasketView {
   //goodCards: Map<number, Partial<IGood>>;
-  goodCards: Map<number, IBusketItemView>;
+  goodCards: Map<number, ICardView>;
   summ: HTMLElement;
   buttonRegister: HTMLButtonElement;
   registerFunction: Function;
   title: HTMLTitleElement;
 }
 
-export interface IBusketButton {
-  busketButton: HTMLButtonElement;
+export interface IBasketButton {
+  basketButton: HTMLButtonElement;
   counter: HTMLElement;
 }
 
-// class BusketButton implements IBusketButton {
+// class BasketButton implements IBasketButton {
 //   updateCounter(value: number) {}
 // }
 
