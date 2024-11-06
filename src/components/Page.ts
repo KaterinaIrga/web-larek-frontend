@@ -1,56 +1,58 @@
-import {Header} from './Header';
+
 import {Gallery} from './Gallery';
 import {IEvents} from './base/events';
 import {Component} from './base/Component';
+import { ModalView } from './common/ModalView';
+import { ensureElement } from '../utils/utils';
 
 interface IPage {
  header: HTMLElement;
  gallery: Gallery; 
- test: string;
+ locked: boolean;
 }
 
 //это класс page__wrapper
 export class Page extends Component<IPage> /* implements IPage  */{
-  protected _header: Header;
-  protected _gallery: Gallery;
-  protected _test: HTMLElement;
+  protected _gallery: HTMLElement;
+  protected _basketButton: HTMLButtonElement;
+  protected _counter: HTMLElement;
+/*   protected _logo: HTMLElement;
+  protected _logoImg: HTMLElement; */
+  //protected _wrapper: HTMLElement;
   constructor (protected container: HTMLElement, protected events: IEvents) {
     super(container);
-    this._header = new Header(container.querySelector('.header'), events);
-    this._gallery = new Gallery(container.querySelector('.gallery'), events);
-    this._test = container.querySelector('.gallery');
+    this._basketButton = ensureElement<HTMLButtonElement>('.header__basket', container);
+    this._counter = ensureElement<HTMLElement>('.header__basket-counter', container);
+/*     this._logo = container.querySelector('.header__logo');
+    this._logoImg = container.querySelector('.header__logo-image'); */
+    this._gallery = ensureElement<HTMLElement>('.gallery', container);
+    //this._wrapper = ensureElement<HTMLElement>('.page__wrapper', container);
+
+    this._basketButton.addEventListener('click', 
+      () => {
+        events.emit('basket:open');
+
+      })
 
     /* console.log('this._gallery', this._gallery) */
   }
 
-   set header(header: HTMLElement) {
-    this._header.replaceChild(header)
-    
-  }
- 
-   get header() :HTMLElement {
-    return this._header.render();
-  } 
-
-set test(value: string) {
-this.setTextContent(this._test, value)
-}
-
- get test(): string {
-  return this._test.textContent;
-} 
-
-set title(value: string) {
-  this.setTextContent(this._test, value);
-}
-/* 
-get title(): string {
-  return this._test.textContent || '';
-} */
-
    set gallery(items: HTMLElement[]) {
-    this._gallery.replaceChildren(items);
+    this._gallery.replaceChildren(...items);
   } 
+
+  set counter(value: string) {
+    this._counter.textContent = value;
+  }
+
+  set locked(value: boolean) {
+    if (value) {
+      this.container.classList.add('.page__wrapper_locked')
+    }
+    else {
+      this.container.classList.remove('.page__wrapper_locked')
+    }
+  }
 
   /* get gallery() :Gallery {
     return this._gallery ;

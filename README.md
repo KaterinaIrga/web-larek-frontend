@@ -486,12 +486,23 @@ enum Events  {
   BUTTON_CLICK = 'button:click',
   BUTTON_HOVER = 'button:hover',
   BUTTON_UNHOVER = 'button:unhover',
+ CARD_CLOSE = 'card:close',
+  CARD_OPEN = 'card:open',
+
   GOOD_ADD = 'good:add',
   GOOD_DELETE = 'good:delete',
-  Basket_CHANGE = 'basket:change',
+  BASKET_CHANGE = 'basket:changed',
+  BASKET_CLOSE = 'basket:close',
+  BASKET_OPEN = 'basket:open',
+  BASKET_SUBMIT = 'basket:submit',
+
   MODAL_CLOSE = 'modal:close',
   MODAL_OPEN = 'modal:open',
   MODAL_SUBMIT = 'modal:submit',
-  INPUT_CHANGE = 'input:change'
+  ORDER_CLOSE = 'order:close',
+  ORDER_IS_OK = 'order:isOk'
+  ORDER_OPEN = 'order:open',
+  INPUT_CHANGE = 'input:changed'
+  GOODMODEL_CHANGE = 'goodModel:changed'
 }
 ```

@@ -1,25 +1,23 @@
 import { IGood } from '../types/index';
+import { Model } from './base/Model';
 
-export class GoodModel {
-  protected itemsList: IGood[] = [];
-  constructor() {};
-  getItem(id: Partial<IGood>):IGood {
-    //ToDo: Здесь какая-то фигня накручена с объектом и массивом его значений
-    return this.itemsList.find(item => item.id === Object.values(id)[0])
-  };
+export class GoodModel extends Model<IGood> {
+  protected _itemsList: IGood[] = [];
 
-  getItemById(id: string) : IGood {
-    return this.itemsList.find(item => item.id === id)
+  getItem(id: string) : IGood {
+    return this._itemsList.find(item => item.id === id)
   }
 
   addItem(data: IGood): void{
-  this.itemsList.push(data);
+  this._itemsList.push(data);
   }
 
   fillGoodList(data: IGood[] ):void {
-    this.itemsList = data;
+    this._itemsList = data;
+    this.emitChanges('goodModel:changed', {data: this._itemsList})
   };
   getGoodList():IGood[] {
-    return this.itemsList
+    return this._itemsList
   };
+
 }

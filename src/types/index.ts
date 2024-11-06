@@ -9,7 +9,7 @@ export interface IGood {
 export type GoodCategory = "софт-скил" | "другое" | "дополнительное" | "кнопка" | "хард-скил";
 
 type Price = number | null;
-export type PayType = "Онлайн" | "При получении"
+export type PayType = "card" | "cash"
 export type CardType = "minimalCard" | "mediumCard" | "standartCard";
 
 export interface IModalView {
@@ -28,6 +28,10 @@ export interface IMainView {
   gallery: HTMLElement;
 }
 
+export interface IGallery {
+  gallery: IGood[]
+}
+
 export interface IForm {
   hendlerFunction: Function;
   buttonText: string;
@@ -40,7 +44,8 @@ export interface IForm {
 
 export interface IFormFields {
   address: HTMLInputElement;
-  payType: HTMLSelectElement;
+  payOnline: HTMLButtonElement;
+  payOnReceipt: HTMLButtonElement;
   email: HTMLInputElement;
   telephone: HTMLInputElement; 
 }
@@ -52,9 +57,8 @@ export interface IOrderView {
 export interface IOrderModel {
   address: string;
   payType: PayType;
-  email: string;//добавить шаблон
-  telephone: string; //добавить шаблон
-  summ: number;
+  email: string;
+  telephone: string; 
 }
 
 export interface ICardView {//добавлять ли сюда поля для 3х типов карточки?

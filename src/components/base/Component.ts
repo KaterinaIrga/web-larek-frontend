@@ -1,36 +1,54 @@
 export abstract class Component<T> {
   constructor(protected container: HTMLElement) {};
   // если мы делаем компонент по шаблону, то где его использовать??
-  setVisible(/* element: HTMLElement,  */isVisible: boolean = true) {
-    if (isVisible) {this.container.style.visibility = 'visible';}
-    else {this.container.style.visibility = 'hidden';}
+  setVisible( element: HTMLElement, isVisible: boolean = true) {
+    if (isVisible) {element.style.visibility = 'visible';}
+    else {element.style.visibility = 'hidden';}
   };
-  setDisable(element: HTMLElement, isDisable: boolean = true) {};
-  setTextContent(element: HTMLElement, value: string) {};
-  setImage(element: HTMLElement, url: string, alt: string) {};
-  replaceChildren(elements: HTMLElement[]){
+  setDisable(element: HTMLElement, isDisable: boolean = true) {
+    if (element) {
+      if (isDisable) {element.setAttribute('disabled', 'disabled');}
+      else {element.removeAttribute('disabled');}
+  }
+  };
+  setTextContent(element: HTMLElement, value: string) {
+    if (element) {
+      element.textContent = value;
+    }
+  };
+  setImage(element: HTMLImageElement, src: string, alt?: string) {
+    if (element) {
+      element.src = src;
+      if (alt) {
+        element.alt = alt;
+      }
+    }
+  };
+ /*  replaceChildren(elements: HTMLElement[]){
     this.container.replaceChildren(...elements)
   }
-   replaceChild(element: HTMLElement){
+
+  replaceChild(element: HTMLElement){
     this.container.replaceChild(element, {} as HTMLElement)
   } 
   cloneElement(elementID: string): HTMLElement {    
      const template = document.querySelector(elementID) as HTMLTemplateElement;
      const newElement =template.content.cloneNode(true) as HTMLElement;
     return newElement;
-  };
+  }; */
   setHendler(element: HTMLElement, event:Event, hendlerFunction: Function) {};
-  addClass(element: HTMLElement, className: string) {};
-  hasClass(element: HTMLElement, className: string): boolean {return true};
-  removeClass(element: HTMLElement, className: string) {};
-  toggleClass(element: HTMLElement, className: string) {};
+  toggleClass(element: HTMLElement, className: string, force?: boolean) {
+    element.classList.toggle(className, force);
+}
+  hasClass(element: HTMLElement, className: string): boolean {
+    return element.classList.contains(className)
+  };
   render(data?: Partial<T>): HTMLElement {
     //debugger;
     Object.assign(this as object, data ?? {});
     return this.container;
   };
 
-  //Наверно, компонент и вью - это два отдельных класса? Почему и как делить?
 }
 
 

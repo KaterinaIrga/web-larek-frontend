@@ -2,30 +2,41 @@ import { Component} from './base/Component';
 import { ICardView, CardType, IGood } from '../types/index';
 import { IEvents } from './base/events';
 
+interface ICardActions {
+  onClick: (event: MouseEvent) => void
+}
+
 export class CardView extends Component<IGood> /* implements ICardView */{
-  private _title: HTMLTitleElement;
-  private _image: HTMLImageElement;
-  private _category: HTMLElement;
-  private _description: HTMLElement;
-  private _price: HTMLElement;
-  private _deleteButton?: HTMLButtonElement;
-  private _basketButton?: HTMLButtonElement;
-  private _functionDeleteItem?: Function;
+  protected _title: HTMLTitleElement;
+  protected _image: HTMLImageElement;
+  protected _category: HTMLElement;
+  protected _description: HTMLElement;
+  protected _price: HTMLElement;
+  protected _deleteButton?: HTMLButtonElement;
+  protected _basketButton?: HTMLButtonElement;
+  protected _index?: HTMLElement;
+  protected _functionDeleteItem?: Function;
   deleteItem(elem: HTMLElement) {};
   showCardByType(elem: HTMLElement, cardType: CardType): HTMLElement {return {} as HTMLElement};
-  constructor(container: HTMLElement, cardType: CardType, protected events: IEvents) {
+  constructor(container: HTMLElement, cardType: CardType, protected actions: ICardActions) {
     super(container);    
     switch (cardType) {
       case 'minimalCard': {
+        this._index = container.querySelector('.basket__item-index');
         this._deleteButton = container.querySelector('.basket__item-delete');
-        this._deleteButton.addEventListener('click', (e: Event) => {})
+         if (actions.onClick) {
+          this._deleteButton.addEventListener('click', actions.onClick)
+        } 
         break;
       }
       case 'mediumCard': {
+        
         this._image = container.querySelector('.card__image');
         this._category = container.querySelector('.card__category');
         this._description = container.querySelector('.card__text');
-        this.container.addEventListener('click', (e: Event) => {})
+        if (actions.onClick) {
+          this.container.addEventListener('click', actions.onClick)
+        }
         break;
       }
       case 'standartCard': {
@@ -33,22 +44,34 @@ export class CardView extends Component<IGood> /* implements ICardView */{
         this._category = container.querySelector('.card__category');
         this._description = container.querySelector('.card__text');
         this._basketButton = container.querySelector('.button');
-        this._basketButton.addEventListener('click', (e: Event) => {})
-        break;
-      }
-      default: {
-        this._title = container.querySelector('.card__title');
-        this._price = container.querySelector('.card__price');
+        if (actions.onClick) {
+          this._basketButton.addEventListener('click', actions.onClick)
+        }
         break;
       }
     }
-    
+    this._title = container.querySelector('.card__title');
+    this._price = container.querySelector('.card__price');
+   
+
   }
   set title (value:string){
     this.setTextContent(this._title, value);
   }
-  set image (value:string){
-    this.setTextContent(this._image, value);
+  get title(){
+    return this._title.textContent
+  }
+
+  //ToDo: номера не прописываются для добавляемых карточек. Доделать
+  set index (value:string){
+    this.setTextContent(this._index, value);
+  }
+  get index(){
+    return this._index.textContent
+  }
+
+  set image (src: string){
+    this.setImage(this._image, src, this.title);
   }
 /*   get image(): string {
     return this._image.textContent
@@ -60,7 +83,13 @@ export class CardView extends Component<IGood> /* implements ICardView */{
     this.setTextContent(this._description, value);
   }
   set price (value:string){
-    this.setTextContent(this._price, value);
+    if (value) {
+      this.setTextContent(this._price, value + ' синапсов');
+    }
+    else {
+      this.setTextContent(this._price, 'бесценно');
+    }
+    
   }
 /*   set deleteButton (value:HTMLButtonElement){
     this._deleteButton = value;

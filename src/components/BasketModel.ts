@@ -1,18 +1,20 @@
 import { IGood } from '../types/index';
+import { Model } from './base/Model';
 import { GoodModel } from './GoodModel';
+import { IEvents } from './base/events';
 
-export class BasketModel {
-  protected itemsList: Set<IGood>;
-  constructor() {};
+export class BasketModel extends Model<IGood> {
+  protected itemsList: Set<IGood> ;
+  constructor(data: Partial<IGood>, protected events: IEvents) {
+    super(data, events)
+    this.itemsList = new Set()
+  };
   addGood(good: IGood): void {
     this.itemsList.add(good)
   };
 
- /*  addGoodById(id: string): void {
-     this.itemsList.push()
-   }; */
-
-  removeGood(id: IGood['id']): Set<IGood> {
+  removeGood(good: IGood): Set<IGood> {
+    this.itemsList.delete(good)
     return this.itemsList/* .filter(item => item.id !== id) */
   };
 
@@ -39,10 +41,13 @@ export class BasketModel {
 
   getBasketSumm(): number {
     let summ: number = 0;
-    this.itemsList.forEach(value => {summ + value.price});
-    return summ
-    /* return this.itemsList.reduce((summ, item) => {return item.price + summ}, 0) */
+this.itemsList.forEach(value => {
+  summ += value.price ? value.price : 0; 
+  return summ })
+  return summ 
   }
 
-  getBasketCount(): number {return 22}
+  getBasketCount(): number {
+    return this.itemsList.size
+  }
 }

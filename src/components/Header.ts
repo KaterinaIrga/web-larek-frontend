@@ -1,4 +1,4 @@
-import {IHeaderView} from '../types/index';
+/* import {IHeaderView} from '../types/index';
 import {Component} from './base/Component';
 import {IEvents} from './base/events';
 
@@ -25,4 +25,4 @@ export class Header extends Component<IHeaderView>{
   set counter(value: string) {
     this._counter.textContent = value;
   }
-}
+} */
