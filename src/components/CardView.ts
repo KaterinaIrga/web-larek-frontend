@@ -16,6 +16,9 @@ export class CardView extends Component<IGood> /* implements ICardView */ {
 	protected _index?: HTMLElement;
 	protected _functionDeleteItem?: Function;
 	deleteItem(elem: HTMLElement) {}
+	toggleLockBasketButton() {
+		this._basketButton.disabled = !this._basketButton.disabled;
+	}
 	showCardByType(elem: HTMLElement, cardType: CardType): HTMLElement {
 		return {} as HTMLElement;
 	}
@@ -48,6 +51,7 @@ export class CardView extends Component<IGood> /* implements ICardView */ {
 				this._category = container.querySelector('.card__category');
 				this._description = container.querySelector('.card__text');
 				this._basketButton = container.querySelector('.button');
+
 				if (actions.onClick) {
 					this._basketButton.addEventListener('click', actions.onClick);
 				}

@@ -50,14 +50,20 @@ export interface IFormFields {
 	payOnline: HTMLButtonElement;
 	payOnReceipt: HTMLButtonElement;
 	email: HTMLInputElement;
-	telephone: HTMLInputElement;
+	phone: HTMLInputElement;
 }
 
 export interface IOrderModel {
 	address: string;
 	payType: PayType;
 	email: string;
-	telephone: string;
+	phone: string;
+}
+
+export interface IOrderResponse extends IOrderModel
+ {
+	total: number;
+	/* items: IOrderModel; */
 }
 
 export interface ICardView {
@@ -68,11 +74,6 @@ export interface ICardView {
 	price: HTMLElement;
 }
 
-export interface IOrderSucsessView {
-	image: HTMLImageElement;
-	title: HTMLElement;
-	summ: HTMLElement;
-}
 
 export interface IBasketView {
 	goodCards: Set<ICardView>;

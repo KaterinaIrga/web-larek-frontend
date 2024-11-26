@@ -21,13 +21,13 @@ export class FormOrder extends FormView<
 		this.valid = false;
 
 		this._buttonCard.addEventListener('click', (e: Event) => {
-			const field = (e.target as HTMLButtonElement).name;
-			this.onInputChange(field, 'card');
+		//	const field = (e.target as HTMLButtonElement).name;
+			this.onInputChange('payType', 'card');
 		});
 
 		this._buttonCash.addEventListener('click', (e: Event) => {
-			const field = (e.target as HTMLButtonElement).name;
-			this.onInputChange(field, 'cash');
+		//	const field = (e.target as HTMLButtonElement).name;
+			this.onInputChange('payType', 'cash');
 		});
 	}
 	set address(value: string) {

@@ -1,15 +1,14 @@
 import { Api, ApiListResponse } from './base/api';
-import { IGood } from '../types';
+import { IGood, IOrderModel, IOrderResponse } from '../types';
 
 interface ILarekApi {
 	//getGoodById(id: string): Promise<IGood>
 	getGoodList(): Promise<IGood[]>;
 }
 
-export class LarekApi implements ILarekApi {
-	protected _api: Api;
+export class LarekApi extends Api  implements ILarekApi {
 	constructor(readonly cdn: string, baseUrl: string, options?: RequestInit) {
-		this._api = new Api(baseUrl, options);
+		super(baseUrl, options)
 	}
 	/* 
   getGoodById(id: string): Promise<IGood> {
@@ -18,10 +17,16 @@ export class LarekApi implements ILarekApi {
   } */
 
 	getGoodList(): Promise<IGood[]> {
-		return this._api
+		return this
 			.get('/product')
 			.then((data: ApiListResponse<IGood>) =>
 				data.items.map((item) => ({ ...item, image: this.cdn + item.image }))
 			);
+	}
+
+	sendOrder(data:/*  IOrderModel & */ IOrderResponse){
+		return this
+		  .post('/order', data)
+			.then((data : IOrderResponse ) => data)
 	}
 }

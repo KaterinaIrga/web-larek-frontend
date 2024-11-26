@@ -5,7 +5,7 @@ import { BasketModel } from './components/BasketModel';
 import { ModalView } from './components/common/ModalView';
 import { CardView } from './components/CardView';
 import { Page } from './components/Page';
-import { IGood, IOrderModel } from './types';
+import { IGood, IOrderModel, IOrderResponse } from './types';
 import { IFormState } from './components/common/FormView';
 import { EventEmitter } from './components/base/events';
 import { API_URL, CDN_URL } from './utils/constants';
@@ -14,6 +14,7 @@ import { BasketView } from './components/BasketView';
 import { FormOrder } from './components/FormOrder';
 import { FormContacts } from './components/FormContacts';
 import { OrderModel, FormErrors } from './components/OrderModel';
+import { SuccessView } from './components/SuccessView';
 
 //templates
 const cardCatalogTemplate = document.querySelector(
@@ -29,6 +30,9 @@ const basketTemplate = document.querySelector('#basket') as HTMLTemplateElement;
 const orderTemplate = document.querySelector('#order') as HTMLTemplateElement;
 const contactsTemplate = document.querySelector(
 	'#contacts'
+) as HTMLTemplateElement;
+const successTemplate = document.querySelector(
+	'#success'
 ) as HTMLTemplateElement;
 
 const events = new EventEmitter();
@@ -46,10 +50,7 @@ const formState: IFormState = { valid: false, errors: [] };
 Object.assign(orderData, formState);
 const formOrder = new FormOrder(cloneTemplate(orderTemplate), events);
 const formContacts = new FormContacts(cloneTemplate(contactsTemplate), events);
-
-api.getGoodList().then((res) => {
-	data.fillGoodList(res);
-});
+const successCard = new SuccessView(cloneTemplate(successTemplate), events)
 
 events.on('goodModel:changed', () => {
 	page.gallery = data.getGoodList().map((item) => {
@@ -93,6 +94,7 @@ events.on('good:delete', (item: IGood) => {
 	basketData.removeGood(item);
 	page.counter = String(basketData.getBasketCount());
 	//ToDo: убрать дубирование кода
+
 	basketView.content = basketData.getBasket().map((item) => {
 		const cardBasket = new CardView(
 			cloneTemplate(cardBasketTemplate),
@@ -105,7 +107,6 @@ events.on('good:delete', (item: IGood) => {
 		);
 		return cardBasket.render(item) as HTMLLIElement;
 	});
-	//modalBasket.content = basketView.render();
 	modalPreview.content = basketView.render();
 });
 
@@ -121,12 +122,20 @@ events.on('card:open', (item: IGood) => {
 		{
 			onClick: () => {
 				events.emit('good:add', item);
+				events.emit('card:refresh', cardPreview);
 			},
 		}
 	);
+	if (basketData.isGoodInBasket(item)) {
+		cardPreview.toggleLockBasketButton();
+	}
 	modalPreview.content = cardPreview.render(item);
 	modalPreview.open();
 });
+
+events.on('card:refresh', (cardPreview: CardView) => {
+	cardPreview.toggleLockBasketButton()
+})
 
 events.on('basket:submit', () => {
 	//modalPreview.content =  formSecond.render()
@@ -147,11 +156,29 @@ events.on('order:isOk', (order: IOrderModel) => {
 	formOrder.valid = true;
 });
 
+events.on('contacts:isOk', (order: IOrderModel) => {
+	formContacts.valid = true;
+});
+
 events.on('order:submit', () => {
 	modalPreview.content = formContacts.render(
 		orderData as OrderModel & IFormState
 	);
 });
+
+events.on('contacts:submit', () => {
+	events.emit('order:send', Object.assign(orderData, {total: basketData.getBasketSumm()}) )
+	
+	});
+
+events.on('order:send', (data: IOrderResponse) => {
+	console.log(data)
+ 	api.sendOrder(data)
+	  .then((res) => {
+			successCard.result = basketData.getBasketSumm();
+	    modalPreview.content = successCard.render();
+		}) 
+})
 
 events.on('modal:open', () => {
 	page.locked = true;
@@ -159,4 +186,8 @@ events.on('modal:open', () => {
 
 events.on('modal:close', () => {
 	page.locked = false;
+});
+
+api.getGoodList().then((res) => {
+	data.fillGoodList(res);
 });

@@ -2,9 +2,9 @@ import { Component } from '../base/Component';
 import { IFormFields, IForm } from '../../types/index';
 import { IEvents } from '../base/events';
 
-export interface IFormActions {
+/* export interface IFormActions {
 	onClick: (event: MouseEvent) => void;
-}
+} */
 
 export interface IFormState {
 	valid: boolean;
@@ -43,7 +43,7 @@ export class FormView<T> extends Component<IFormState> {
 		input.placeholder = value;
 	}
 	onInputChange(field: string, value: string) {
-		this.events.emit(`${this.container.name}.${field}:change`, {
+		this.events.emit(`order.${field}:change`, {
 			field,
 			value,
 		});

@@ -1,7 +1,7 @@
 import { Component } from './base/Component';
 import { IBasketView, ICardView } from '../types/index';
 import { IEvents } from './base/events';
-import { ensureElement } from '../utils/utils';
+import { ensureElement, createElement } from '../utils/utils';
 
 interface IBasket {
 	content: HTMLElement[];
@@ -38,7 +38,13 @@ export class BasketView extends Component<IBasket> {
 		});
 	}
 	set content(items: HTMLLIElement[]) {
-		this._list.replaceChildren(...items);
+		if (items.length === 0) {
+			const plug = createElement<HTMLLIElement>('p');
+			plug.textContent ='Корзина пуста';
+			items.push(plug)
+		}
+		this._list.replaceChildren(...items);		
+		console.log(this._list)
 	}
 	set price(value: number) {
 		this._price.textContent = value + ' синапсов';

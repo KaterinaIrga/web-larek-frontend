@@ -7,7 +7,7 @@ export class OrderModel extends Model<IOrderModel> {
 	private _address?: string;
 	private _payType?: PayType;
 	private _email?: string;
-	private _telephone?: string;
+	private _phone?: string;
 
 	set address(value: string) {
 		this._address = value;
@@ -15,8 +15,8 @@ export class OrderModel extends Model<IOrderModel> {
 	set email(value: string) {
 		this._email = value;
 	}
-	set telephone(value: string) {
-		this._telephone = value;
+	set phone(value: string) {
+		this._phone = value;
 	}
 	set payType(value: PayType) {
 		this._payType = value;
@@ -27,8 +27,8 @@ export class OrderModel extends Model<IOrderModel> {
 	get email() {
 		return this._email;
 	}
-	get telephone() {
-		return this._telephone;
+	get phone() {
+		return this._phone;
 	}
 	get payType() {
 		return this._payType;
@@ -39,33 +39,50 @@ export class OrderModel extends Model<IOrderModel> {
 		) {
 			case 'address': {
 				this.address = value;
+				break;
 			}
 			case 'email': {
 				this.email = value;
+				break;
 			}
 			case 'payType': {
 				this.payType = value as PayType;
+				break;
 			}
-			case 'telephone': {
-				this.telephone = value;
+			case 'phone': {
+				this.phone = value;
 			}
 		}
 
-		if (this.CheckData()) {
-			this.events.emit('order:isOk', this);
+		if (this.CheckData(field)) {
+			if (['payType', 'address'].some(item => item === field)) {
+				this.events.emit('order:isOk', this);
+			} else 
+			{
+				this.events.emit('contacts:isOk', this);
+			}
+			
 		}
 	}
-	CheckData(): boolean {
+	CheckData(field: keyof IOrderModel): boolean {
 		const errors: FormErrors = {};
-		if (!this.email) {
-			errors.email = 'Необходимо указать email';
+	  if (['payType', 'address'].some(item => item === field)) {
+			if (!this._payType) {
+				errors.payType = 'Необходимо указать способ оплаты';
+			}
+			if (!this._address) {
+				errors.address = 'Необходимо указать адрес';
+			}
+		} else {
+			if (!this._email) {
+				errors.email = 'Необходимо указать email';
+			}
+			
+			if (!this._phone) {
+				errors.phone = 'Необходимо указать телефон';
+			}
 		}
-		if (!this.address) {
-			errors.address = 'Необходимо указать адрес';
-		}
-		if (!this.telephone) {
-			errors.telephone = 'Необходимо указать телефон';
-		}
+		
 		this.events.emit('formErrors:change', errors);
 		return Object.keys(errors).length === 0;
 	}
