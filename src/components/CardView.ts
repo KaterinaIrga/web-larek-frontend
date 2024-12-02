@@ -5,7 +5,7 @@ interface ICardActions {
 	onClick: (event: MouseEvent) => void;
 }
 
-export class CardView extends Component<IGood> /* implements ICardView */ {
+export class CardView extends Component<IGood> {
 	protected _title: HTMLTitleElement;
 	protected _image: HTMLImageElement;
 	protected _category: HTMLElement;
@@ -14,13 +14,9 @@ export class CardView extends Component<IGood> /* implements ICardView */ {
 	protected _deleteButton?: HTMLButtonElement;
 	protected _basketButton?: HTMLButtonElement;
 	protected _index?: HTMLElement;
-	protected _functionDeleteItem?: Function;
-	deleteItem(elem: HTMLElement) {}
+
 	toggleLockBasketButton() {
 		this._basketButton.disabled = !this._basketButton.disabled;
-	}
-	showCardByType(elem: HTMLElement, cardType: CardType): HTMLElement {
-		return {} as HTMLElement;
 	}
 	constructor(
 		container: HTMLElement,

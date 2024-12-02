@@ -29,7 +29,6 @@ export abstract class Component<T> {
 			}
 		}
 	}
-	setHendler(element: HTMLElement, event: Event, hendlerFunction: Function) {}
 	toggleClass(element: HTMLElement, className: string, force?: boolean) {
 		element.classList.toggle(className, force);
 	}

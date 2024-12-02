@@ -1,6 +1,10 @@
 import { Component } from '../base/Component';
-import { IModalView } from '../../types/index';
 import { IEvents } from '../base/events';
+
+interface IModalView {
+	content: HTMLElement;
+	exitButton: HTMLButtonElement;
+} 
 
 export class ModalView extends Component<IModalView> {
 	protected _content: HTMLElement;

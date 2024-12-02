@@ -24,7 +24,7 @@ export class LarekApi extends Api  implements ILarekApi {
 			);
 	}
 
-	sendOrder(data:/*  IOrderModel & */ IOrderResponse){
+	sendOrder(data: IOrderResponse){
 		return this
 		  .post('/order', data)
 			.then((data : IOrderResponse ) => data)

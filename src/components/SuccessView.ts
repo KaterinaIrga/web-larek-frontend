@@ -18,7 +18,8 @@ export class SuccessView extends Component<ISuccess> {
     this._buttonClose = ensureElement<HTMLButtonElement>('.order-success__close', container);
 
     this._buttonClose.addEventListener('click', () => {
-      this.events.emit('modal:close');
+      //this.events.emit('modal:close');
+      this.events.emit('success:close');
     })
   }
   set result (value: number) {

@@ -1,7 +1,6 @@
 import { Gallery } from './Gallery';
 import { IEvents } from './base/events';
 import { Component } from './base/Component';
-import { ModalView } from './common/ModalView';
 import { ensureElement } from '../utils/utils';
 
 interface IPage {

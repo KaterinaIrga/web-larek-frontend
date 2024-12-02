@@ -82,19 +82,21 @@ events.on('basket:open', () => {
 		return cardBasket.render(
 			Object.assign(item, { index: basketIndes++ })
 		) as HTMLLIElement;
-	});
+	})
+
+	if (basketData.getBasketSumm() === 0) {
+		basketView.lockBasketButton(true);
+	} else {
+		basketView.lockBasketButton(false);
+	}
 	basketView.price = basketData.getBasketSumm();
 	modalPreview.content = basketView.render();
-	// modalBasket.content = basketView.render();
 	modalPreview.open();
-	// modalBasket.open()
 });
 
 events.on('good:delete', (item: IGood) => {
 	basketData.removeGood(item);
 	page.counter = String(basketData.getBasketCount());
-	//ToDo: убрать дубирование кода
-
 	basketView.content = basketData.getBasket().map((item) => {
 		const cardBasket = new CardView(
 			cloneTemplate(cardBasketTemplate),
@@ -167,7 +169,7 @@ events.on('order:submit', () => {
 });
 
 events.on('contacts:submit', () => {
-	events.emit('order:send', Object.assign(orderData, {total: basketData.getBasketSumm()}) )
+	events.emit('order:send', Object.assign(orderData, {total: basketData.getBasketSumm(), items: basketData.getBasketGoods()}) )
 	
 	});
 
@@ -186,6 +188,14 @@ events.on('modal:open', () => {
 
 events.on('modal:close', () => {
 	page.locked = false;
+	orderData.clear();
+});
+
+events.on('success:close', () => {
+	page.locked = false;
+	basketData.clearBasket();
+	page.counter = String(basketData.getBasketCount());
+	modalPreview.close();
 });
 
 api.getGoodList().then((res) => {

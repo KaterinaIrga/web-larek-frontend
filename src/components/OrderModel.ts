@@ -1,38 +1,14 @@
-import { IOrderModel, PayType } from '../types/index';
+import { IOrderModel, Payment } from '../types/index';
 import { Model } from './base/Model';
 
 export type FormErrors = Partial<Record<keyof OrderModel, string>>;
 
 export class OrderModel extends Model<IOrderModel> {
-	private _address?: string;
-	private _payType?: PayType;
-	private _email?: string;
-	private _phone?: string;
+	public address?: string;
+	public payment?: Payment;
+	public email?: string;
+	public phone?: string;
 
-	set address(value: string) {
-		this._address = value;
-	}
-	set email(value: string) {
-		this._email = value;
-	}
-	set phone(value: string) {
-		this._phone = value;
-	}
-	set payType(value: PayType) {
-		this._payType = value;
-	}
-	get address() {
-		return this._address;
-	}
-	get email() {
-		return this._email;
-	}
-	get phone() {
-		return this._phone;
-	}
-	get payType() {
-		return this._payType;
-	}
 	setOrderField(field: keyof IOrderModel, value: string) {
 		switch (
 			field //реализация выбрана из-за невозможности динамического вызова метода класса
@@ -45,8 +21,8 @@ export class OrderModel extends Model<IOrderModel> {
 				this.email = value;
 				break;
 			}
-			case 'payType': {
-				this.payType = value as PayType;
+			case 'payment': {
+				this.payment = value as Payment;
 				break;
 			}
 			case 'phone': {
@@ -55,7 +31,7 @@ export class OrderModel extends Model<IOrderModel> {
 		}
 
 		if (this.CheckData(field)) {
-			if (['payType', 'address'].some(item => item === field)) {
+			if (['payment', 'address'].some(item => item === field)) {
 				this.events.emit('order:isOk', this);
 			} else 
 			{
@@ -66,19 +42,19 @@ export class OrderModel extends Model<IOrderModel> {
 	}
 	CheckData(field: keyof IOrderModel): boolean {
 		const errors: FormErrors = {};
-	  if (['payType', 'address'].some(item => item === field)) {
-			if (!this._payType) {
-				errors.payType = 'Необходимо указать способ оплаты';
+	  if (['payment', 'address'].some(item => item === field)) {
+			if (!this.payment) {
+				errors.payment = 'Необходимо указать способ оплаты';
 			}
-			if (!this._address) {
+			if (!this.address) {
 				errors.address = 'Необходимо указать адрес';
 			}
 		} else {
-			if (!this._email) {
+			if (!this.email) {
 				errors.email = 'Необходимо указать email';
 			}
 			
-			if (!this._phone) {
+			if (!this.phone) {
 				errors.phone = 'Необходимо указать телефон';
 			}
 		}
@@ -86,5 +62,12 @@ export class OrderModel extends Model<IOrderModel> {
 		this.events.emit('formErrors:change', errors);
 		return Object.keys(errors).length === 0;
 	}
-	//Clear() {}
+
+	clear(){
+		this.payment = null;
+		this.address = '';
+		this.email = '';
+		this.phone = '';
+	}
+	
 }

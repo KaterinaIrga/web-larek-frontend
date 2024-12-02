@@ -56,14 +56,10 @@ export abstract class Component<T> {
   setVisible(element: HTMLElement, isVisible: boolean = true) {};
   setDisable(element: HTMLElement, isDisable: boolean = true) {};
   setTextContent(element: HTMLElement, value: string) {};
-  setImage(element: HTMLElement, url: string, alt: string) {};
-  cloneElement(elementID: string): HTMLElement {};
-  addClass(element: HTMLElement, className: string) {};
+  setImage(element: HTMLElement, src: string, alt: string) {};
   hasClass(element: HTMLElement, className: string): boolean {};
-  removeClass(element: HTMLElement, className: string) {};
-  toggleClass(element: HTMLElement, className: string) {};
+  toggleClass(element: HTMLElement, className: string, force?: boolean) {};
   render(data?: Partial<T>): HTMLElement {};
-  setHandler(element: HTMLElement, event:Event, hendlerFunction: Function) {};
 }
 ```
 
@@ -75,13 +71,9 @@ export abstract class Component<T> {
 - `setDisable` - метод делает элемент недоступным для взаимодействия. Входящий параметр - HTMLElement. Возвращаемого значениея нет;
 - `setTextContent` - метод устанавливает текстовое значение для элемента. Входящие параметры - HTMLElement и значение для установки. Возвращаемого значения нет;
 - `setImage` - метод устанавливает изображение для элемента. Входящие параметры - HTMLElement, ссылка на изображение, альтернативный текст. Возвращаемого значения нет;
-- `cloneElement` - метод копирует элемент, переданный в качестве аргумента. Возвращает HTMLElement;
-- `addClass` - метод добавляет элементу класс, переданный в качестве аргумента. Входящие параметры - HTMLElement, имя класса. Возвращаемого значения нет;
 - `hasClass` - метод проверяет наличие у элемента класса, переданного в качестве аргумента. Входящие параметры - HTMLElement, имя класса. Возвращает значение типа boolean.
-- `removeClass` - метод удаляет у элемента класс, переданный в качестве аргумента. Входящие параметры - HTMLElement, имя класса. Возвращаемого значения нет;
 - `toggleClass` - метод добавляет переданный в качестве аргумента класс у элемента, если его нет и удаляет, если он есть. Входящие параметры - HTMLElement, имя класса. Возвращаемого значениея нет;
 - `render` - метод возвращает текущее значение поля component. Метод принимает в качестве необязательного входящего параметра данные для обновления содержимого элемента component. Тип возвращаемого значение - HTMLElement.
-- `setHandler`- метод устанавливает событие для элемента. Входящие параметры: HTMLElement, Event, Function.
 
 ### Класс api
 Класс предоставляет методы для взаимодействия с сервером.
@@ -107,37 +99,51 @@ export abstract class Component<T> {
 - `trigger` - метод инициирует событие, переданное в качестве аргумента.
 
 
+### Класс Model
+
+Абстрактный дженерик-класс, описывающий базовый компонент модели данных. Класс является элементом слоя данных.
+
+```
+export abstract class Model<T> {
+	constructor(data: Partial<T>, protected events: IEvents) {
+		Object.assign(this, data);
+	}
+	// если модель поменялась - оповещаем
+	emitChanges(event: string, payload?: object) {
+		this.events.emit(event, payload ?? {});
+	}
+}
+```
+**Конструктор класса** в качестве аргументов принимает объект модели данных и брокер событий
+
+**Методы класса**
+
 ## Компоненты модели данных
 
 ### Класс GoodModel 
 Содержит массив товаров itemsList и методы работы с ним. Согласно выбранной архитектуре приложения класс относится к слою данных.
 
 ```
-export class GoodModel {
-  protected itemsList: IGood[] = [];
-  constructor() {};
-  getItem(id: Partial<IGood>):IGood {
-    return this.itemsList.find(item => item.id === Object.values(id)[0])
-  };
+export class GoodModel extends Model<IGood> {
+	protected _itemsList: IGood[] = [];
 
-  getItemById(id: string) : IGood {
-    return this.itemsList.find(item => item.id === id)
-  }
-
-  addItem(data: IGood): void{
-  this.itemsList.push(data);
-  }
-
-  fillGoodList(data: IGood[] ):void {
-    this.itemsList = data;
-  };
-  getGoodList():IGood[] {
-    return this.itemsList
-  };
+	getItem(id: string): IGood {
+		return this._itemsList.find((item) => item.id === id);
+	}
+	addItem(data: IGood): void {
+		this._itemsList.push(data);
+	}
+	fillGoodList(data: IGood[]): void {
+		this._itemsList = data;
+		this.emitChanges('goodModel:changed', { data: this._itemsList });
+	}
+	getGoodList(): IGood[] {
+		return this._itemsList;
+	}
 }
 ```
 
-**Конструктор класса** не принимает аргументов.
+**Конструктор класса** принимает объект данных модели.
 
 **Поля класса**
 - `itemsList` - защищенное поле, содержащее массив товаров (объектов реализующих интерфейс IGood)
@@ -153,26 +159,55 @@ export class GoodModel {
 Согласно выбранной архитектуре приложения класс относится к слою данных.
 
 ```
-export class BasketModel {
-  protected itemsList: Set<IGood>;
-  constructor(idOrder) {};
-  addGood(good: IGood): void {};
+export class BasketModel extends Model<IGood> {
+	protected itemsList: Set<IGood>;
+	constructor(data: Partial<IGood>, protected events: IEvents) {
+		super(data, events);
+		this.itemsList = new Set();
+	}
+	addGood(good: IGood): void {
+		this.itemsList.add(good);
+	}
+	removeGood(good: IGood): Set<IGood> {
+		this.itemsList.delete(good);
+		return this.itemsList; 
+	}
+	getBasket(): IGood[] {
+		const result: IGood[] = [];
+		this.itemsList.forEach((value) => {
+			result.push(value);
+		});
+		return result;
+	}
+	clearBasket(): void {
+		this.itemsList.clear();
+	}
+	isGoodInBasket(good: IGood): boolean {
+		return this.itemsList.has(good);
+	}
+	getBasketSumm(): number {
+		let summ: number = 0;
+		this.itemsList.forEach((value) => {
+			summ += value.price ? value.price : 0;
+			return summ;
+		});
+		return summ;
+	}
+	getBasketCount(): number {
+		return this.itemsList.size;
+	}
+  getBasketGoods(): string[] {
+    let result: string[] = []
 
-  removeGood(id: IGood['id']): IGood[] {};
-
-  refreshGoodList() {}
-
-  getBasket(): IGood[] {};
-
-  clearBasket():void {};
-
-  isGoodInBasket(good: IGood): boolean {}
-
-  getBasketSumm(): number {}
+		for (let item of  this.itemsList) {
+			result.push(item.id)
+		}
+		return result;
+	}
 }
 ```
 
-**Конструктор класса** не принимает аргументов.
+**Конструктор класса** принимает объект данных модели.
 **Поля класса**
 - `_itemsList` - защищенное поле, содержащее массив товаров, добавленных в корзину (объектов реализующих интерфейс IGood)
 **Методы класса**
@@ -183,40 +218,33 @@ export class BasketModel {
 - `isGoodInBasket` - Метод проверяет, присутствует ли товар в корзине. Входящий параметр - id товара. Возвращает значение типа boolean.
 - `getBasketSumm` - Метод возвращает суммарную стоимость всех товаров, находящихся в корзине. Входящих параметров у метода нет.
 - `getBasketCount`- Метод возвращает количество товаров, находящихся в корзине. Входящих параметров у метода нет.
+- `getBasketGoods` - Метод возвращает массив ID заказанныхтоваров. Входящих параметров у метода нет.
 
 ### Класс OrderModel
 Содержит данные для отправки заказа. Согласно выбранной архитектуре приложения класс относится к слою данных.
 
 ```
-export class OrderModel implements IOrderModel{
-  private _address: string;
-  private _payType: PayType;
-  private _email: string;
-  private _telephone: string; 
-  private _summ: number;
-  constructor() {
-  }
-   set address(value: string) {};
-   set email(value: string) {};
-   set telephone(value: string) {};
-   set payType(value: PayType) {};
-   set summ(): number {};
-   GenerateNewID(): number{};
-   CheckData():boolean {};
-   Clear(){};
+export class OrderModel extends Model<IOrderModel> {
+	public address?: string;
+	public payment?: payment;
+	public email?: string;
+	public phone?: string;
+
+	setOrderField(field: keyof IOrderModel, value: string) {}
+	CheckData(field: keyof IOrderModel): boolean {}	
 }
+
 ```
 
-**Конструктор класса** не принимает аргументов.
+**Конструктор класса** принимает объект данных модели.
 **Поля класса**
-- `_email` - защищенное поле, содержит email заказчика.
-- `_telephone` - защищенное поле, содержит телефон заказчика.
-- `_payType` - защищенное поле, содержит тип оплаты заказа.
-- `_address` - защищенное поле, содержит адрес для отправки заказа.
--  `_summ` - поле содержит суммарную стоимость всех товаров в заказе.
+- `email` - необязятельное поле, содержит email заказчика.
+- `telephone` - необязятельное поле, содержит телефон заказчика.
+- `payType` - необязятельное поле, содержит тип оплаты заказа.
+- `address` - необязятельное поле, содержит адрес для отправки заказа.
 **Методы класса**
-- `CheckData` - Метод проверки корректности данных заказа. Возвращает значение логического типа. Входящих параметров у метода нет.
-- `Clear` - Метод очищает все поля заказа, кроме поля ID и суммарной стоимости всех товаров. Входящих параметров у метода нет.
+- `setOrderField` - метод устанавливает значение для поля. Входящие параметры: имя поля и значение поля.
+- `CheckData` - Метод проверки корректности данных заказа. Возвращает значение логического типа. Входящий параметр - имя поля.
 
 ## Компоненты слоя представления
 
@@ -224,64 +252,82 @@ export class OrderModel implements IOrderModel{
 Класс описывает главную страницу приложения. Относится к слою представления. 
 
 ```
-export class Page implements IPage {
-  protected _headerContainer: HTMLElement;
-  protected _catalogContainer: HTMLElement;
-  constructor (protected container: HTMLElement) {}
-  set headerContainer(header: HTMLElement) {}
-  set catalogContainer(items: HTMLElement[]) {}
+export class Page extends Component<IPage> {
+	protected _gallery: HTMLElement;
+	protected _basketButton: HTMLButtonElement;
+	protected _counter: HTMLElement;
+
+	constructor(protected container: HTMLElement, protected events: IEvents) {}
+	set gallery(items: HTMLElement[]) {}
+	set counter(value: string) {}
+	set locked(value: boolean) {}
 }
+
 ```
 
 **Конструктор класса** в качестве аргумента принимает HTMLElement
 #### **Поля класса**
-- `_headerContainer` - поле содержит заголовок страницы (тип поля - HTMLElement);
-- `_catalogContainer` - поле содержит каталог товаров (тип поля - HTMLElement[]);
+- `_gallery` - поле содержит каталог товаров (тип поля - HTMLElement);
+- `_basketButton` - поле кнопку корзины (тип поля - HTMLButtonElement);
+- `_counter` - поле счетчик товаров (тип поля - HTMLElement);
 
 ### Класс CardView
 Класс относится к слою представления. Наследует класс Component и реализует интерфейс ICardView.
 
 ```
-export class CardView extends Component<ICardView> implements ICardView{
-  title: HTMLTitleElement;
-  image: HTMLImageElement;
-  category: HTMLElement;
-  description: HTMLElement;
-  price: HTMLElement;
-  constructor(container: HTMLElement) {
-    super(container);
-    
-  }
+export class CardView extends Component<IGood> {
+	protected _title: HTMLTitleElement;
+	protected _image: HTMLImageElement;
+	protected _category: HTMLElement;
+	protected _description: HTMLElement;
+	protected _price: HTMLElement;
+	protected _deleteButton?: HTMLButtonElement;
+	protected _basketButton?: HTMLButtonElement;
+	protected _index?: HTMLElement;
+	toggleLockBasketButton() {}
+	constructor(
+		container: HTMLElement,
+		cardType: CardType,
+		protected actions: ICardActions
+	) {}
+	set title(value: string) {}
+	get title() {}
+	set index(value: string) {}
+	get index() {}
+	set image(src: string) {}
+	set category(value: string) {}
+	set description(value: string) {}
+	set price(value: string) {}
 }
+
 ```
-**Конструктор класса** в качестве аргумента принимает HTMLElement
+**Конструктор класса** в качестве аргумента принимает HTMLElement, тип карточки и объект, содержащий события для карточки.
 #### **Поля класса**
 - `title` - поле содержит заголовок карточки (тип поля - HTMLTitleElement);
 - `image` - поле содержит изображение товара (тип поля - HTMLImageElement);
 - `category` - поле отображает категорию товара(тип поля - HTMLElement);
 - `description` - поле отображает блок с описанием товара в карточке (тип поля - HTMLElement);
 - `price` - поле отображает цену товара (тип поля - HTMLElement);
+- `_deleteButton` - необязательное поле, содержит кнопку удаления товара (тип поля - HTMLButtonElement);
+- `_basketButton` - необязательное поле, содержит кнопку добавления товара в корзину (тип поля - HTMLButtonElement);
+- `_index` - необязательное поле, содержит номер товара в корзине (тип поля - HTMLElement);
 
 ### Класс ModalView
 Класс реализует компонент модального окна приложения. Используется для отображения карточки товара, карточки корзины и карточки оформления заказа. Класс относится к слою представления. Наследует класс Component и реализует интерфейс IModalView.
 ```
-export class ModalView extends Component<IModalView> implements IModalView{
-  protected _title: HTMLTitleElement;
-  protected _content: HTMLElement;  
-  protected _exitButton: HTMLButtonElement;
-  constructor(protected container: HTMLElement, submitEvent: string) {};
+export class ModalView extends Component<IModalView> {
+	protected _content: HTMLElement;
+	protected _exitButton: HTMLButtonElement;
+	constructor(protected container: HTMLElement, protected events: IEvents) {}
 
-  set title(content: HTMLTitleElement) {}
-  set content (content: HTMLElement) {}
-  set exitButton (content: HTMLButtonElement) {}
-  open(){}; 
-  close(){};
+	set content(content: HTMLElement) {}
+	open() {}
+	close() {}
 }
 ```
 
 **Конструктор класса** в качестве аргумента принимает HTMLElement и функцию, вызываемую при нажатии кнопки Submit.
 #### **Поля класса**
-- `_title` - поле содержит заголовок модального окна (тип поля - HTMLTitleElement);
 - `_content` - поле содержит контейнер для отображения (тип поля - HTMLElement);
 - `_exitButton` - поле содержит кнопку закрытия окна (тип поля - HTMLButtonElement); HTMLButtonElement;
 #### **Методы класса**
@@ -289,39 +335,114 @@ export class ModalView extends Component<IModalView> implements IModalView{
 - `close`- Метод закрывает модальное окно. Входящих параметров у метода нет.
 
 ### Класс FormView
-Класс реализует компонент формы, используемый при оформлении заказа. Класс относится к слою представления. Наследует класс Component и реализует интерфейс IForm. 
+Базовый класс, реализует компонент формы, используемый при оформлении заказа. Класс относится к слою представления. Наследует класс Component. 
 
 ```
-class FormView extends Component<IForm> implements IForm{
-  protected _submit: HTMLButtonElement;
-  protected _formFields: IFormFields;
-  constructor(templateElement: HTMLTemplateElement) {};
-  setPlaceholder(element: HTMLElement, value: string) {};
-  getValue(element: HTMLElement) {};
-  clear(field?: HTMLInputElement) {};
+export class FormView<T> extends Component<IFormState> {
+	protected _submit: HTMLButtonElement;
+	protected _errors: HTMLElement;
+
+	constructor(protected container: HTMLFormElement, protected events: IEvents) {}
+	set valid(value: boolean) {}
+	set errors(value: string) {}
+	setPlaceholder(inputName: string, value: string) {}
+	onInputChange(field: string, value: string) {}
+	clear() {}
+	render(data: Partial<T> & IFormState) {}
 }
 ```
 
-**Конструктор класса** в качестве аргумента принимает HTMLElement
+**Конструктор класса** в качестве аргумента принимает HTMLElement и объект брокера событий
 #### **Поля класса**
-- `_formFields` - поле содержит блок полей ввода для формы (тип поля - IFormFields); 
+- `_errors` - поле содержит элемент сообщения об ошибке (тип поля - IFormFields); 
 - `_submit` - поле содержит элемент кнопки с типом submit (тип поля - HTMLButtonElement);
 #### **Методы класса**
 - `setPlaceholder` - Метод устанавливает значение плейсхолдера для поля ввода.  Входящие параметры - HTMLInputElement и string. 
-- `getValue` - Метод возвращает значение поля.  Входящий параметр - HTMLInputElement.
+- `onInputChange` - Метод вызывает событие изменения поля ввода.  Входящие параметры - имя поля и значение.
 - `clear` - Метод очищает значение поля (или всех полей формы, если поле не передано).  Входящий параметр - HTMLInputElement.
+- `render` - Метод отрисовывает форму 
 
-### Класс BasketView
-Класс реализует отображениее корзины товаров. Наследует класс Component и реализует класс IBasketView. Является элементом слоя представления. Используется как контейнер для отображения массива карточек товаров. Отображжается в модальном окне. [ToDo] [1]
+### Класс FormOrder
+Класс реализует форму выбора типа оплаты и адреса. Наследует класс FormView, относится к слою представления. Отображается в модальном окне.
 
-[1]: <> 'Не совсем понятно, что должен содержать класс. Поля - в интерфейсе, все функции - в компоненте модульного окна. А эта штука - зачем? '
+```
+export class FormOrder extends FormView<
+	Pick<IOrderModel, 'address' | 'payment'>
+> {
+	protected _buttonCash: HTMLButtonElement;
+	protected _buttonCard: HTMLButtonElement;
+	constructor(protected container: HTMLFormElement, protected events: IEvents) {}
+	set address(value: string) {}
+	set payType(value: string) {}
+}
+```
+**Конструктор класса** в качестве аргумента принимает HTMLFormElement и объект брокера событий
+#### **Поля класса**
+- `_buttonCash` - поле содержит кнопку для выбора типа оплаты "при получении" (тип поля - HTMLButtonElement); 
+- `_buttonCard` - поле содержит кнопку для выбора типа оплаты "онлайн" (тип поля - HTMLButtonElement);
 
-``` 
-export class BasketView extends Component<IBasketView> {
-} 
+### Класс FormContacts 
+Класс реализует форму выбора типа телефона и электронной почты. Наследует класс FormView, относится к слою представления. Отображается в модальном окне.
+
+```
+export class FormContacts  extends FormView<Pick<IOrderModel, 'email' | 'phone' >>{
+
+  constructor(protected container: HTMLFormElement, protected events: IEvents) {}
+  set email (value: string) {}
+  set phone (value: string) {}
+ }
 ```
 
-**Конструктор класса** в качестве аргумента принимает HTMLElement
+**Конструктор класса** в качестве аргумента принимает HTMLFormElement и объект брокера событий
+
+
+### Класс SuccessView
+Класс реализует окно удачного завершения покупки. Наследует класс Component. Является элементом слоя представления. Отображается в модальном окне.
+
+```
+
+export class SuccessView extends Component<ISuccess> {
+  protected _title: HTMLElement;
+  protected _result: HTMLElement;
+  protected _buttonClose: HTMLButtonElement;
+  constructor(protected container: HTMLElement, protected events: IEvents){}
+  set result (value: number) {}
+}
+```
+**Конструктор класса** в качестве аргумента принимает HTMLElement и объект брокера событий
+#### **Поля класса**
+- `_title` - поле содержит элемент заголовка карточки. (тип поля - HTMLElement); 
+- `_result` - поле содержит сумму списания по заказу. (тип поля - HTMLElement); 
+- `_buttonClose` - поле содержит элемент заголовка карточки. (тип поля - HTMLButtonElement); 
+
+### Класс BasketView
+Класс реализует отображениее корзины товаров. Наследует класс Component. Является элементом слоя представления. Отображает массив карточек товаров. Отображается в модальном окне. 
+
+``` 
+export class BasketView extends Component<IBasket> {
+	protected _title: HTMLTitleElement;
+	protected _list: HTMLUListElement;
+	protected _button: HTMLButtonElement;
+	protected _price: HTMLElement;
+
+	constructor(container: HTMLElement, protected events: IEvents) {}
+	set content(items: HTMLLIElement[]) {}
+	set price(value: number) {}
+	set title(value: string) {}
+	set button(value: string) {}
+  lockBasketButton(value: boolean) {}
+}
+
+```
+
+**Конструктор класса** в качестве аргумента принимает HTMLElement и объект брокера событий
+#### **Поля класса**
+- `_title` - поле содержит заголовок (тип поля - HTMLTitleElement); 
+- `_list` - поле содержит список выбранных товаров (тип поля - HTMLUListElement);
+- `_button` - поле содержит элемент кнопки подтверждения заказа (тип поля - HTMLButtonElement); 
+- `_price` - поле содержит общуюю сумму заказа (тип поля - HTMLElement);
+#### **Методы класса**
+- `lockBasketButton` - метод меняет доступность кнопки подтверждения заказа
 
 ## Пользовательские типы
 
@@ -338,10 +459,10 @@ export class BasketView extends Component<IBasketView> {
 export type GoodCategory = "софт-скил" | "другое" | "дополнительное" | "кнопка" | "хард-скил";
 ```
 
-### PayType
+### Payment
 Содержит допустимые варианты оплаты.
 Возможные значения: онлайн, при получении.
-`export type PayType = "Онлайн" | "При получении"`
+`export type Payment = "Онлайн" | "При получении"`
 
 ### Интерфейс IGood 
 Описывает информацию о товаре. Используется в классах: GoodModel, BasketModal.
@@ -368,53 +489,32 @@ export interface IGood {
 Описывает информацию о заказе. Интерфейс относится к слою модели данных.
 ```
 export interface IOrderModel {
-  idOrder: number;
   address: string;
-  payType: PayType;
-  email: string;
-  telephone: string; 
-  summ: number;
+	payment: Payment;
+	email: string;
+	phone: string;
 }
 ```
 
 **Поля интерфейса**
 - `address` - поле содержит адрес доставки заказа (тип данных - текстовый);
-- `payType` - поле содержит данные о варианте оплаты заказа (тип данных пользовательский - PayType);
+- `payment` - поле содержит данные о варианте оплаты заказа (тип данных пользовательский - PayType);
 - `email` - поле содержит адрес электронной почты покупателя (тип данных - текстовый);
-- `telephone` - поле содержит телефон покупателя (тип данных - текстовый);
-- `idOrder` - поле содержит ID заказа.
--  `summ` - поле содержит суммарную стоимость всех товаров, добавленных в корзину.
+- `phone` - поле содержит телефон покупателя (тип данных - текстовый);
 
 ### Интерфейс IPage
 Описывает главную страницу приложения. Интерфейс относится к слою представления.
 ```
 interface IPage {
- headerContainer: HTMLElement;
- catalogContainer: HTMLElement[];  
+  header: HTMLElement;
+	gallery: HTMLElement;
+	locked: boolean;
 }
 ```
 **Поля интерфейса**
-- `headerContainer` - поле содержит заголовок страницы (тип поля - HTMLElement);
-- `catalogContainer` - поле содержит каталог товаров (тип поля - HTMLElement[]);
-
-### Интерфейс ICardView
-Описывает карточку товара. Интерфейс относится к слою представления.
-
-````
-export interface ICardView {
-  title: HTMLTitleElement;
-  image: HTMLImageElement;
-  category: HTMLElement;
-  description?: HTMLElement;
-  price: HTMLElement;}
-````
-
-**Поля интерфейса**
-- `title` - поле содержит заголовок карточки (тип поля - HTMLTitleElement);
-- `image` - поле содержит изображение товара (тип поля - HTMLImageElement);
-- `category` - поле отображает категорию товара(тип поля - HTMLElement);
-- `description` - поле отображает блок с описанием товара в карточке (тип поля - HTMLElement);
-- `price` - поле отображает цену товара (тип поля - HTMLElement);
+- `header` - поле содержит заголовок страницы (тип поля - HTMLElement);
+- `gallery` - поле содержит каталог товаров (тип поля - HTMLElement);
+- `locked` - поле содержит информацию, заблокирована ли страница (тип поля - boolean);
 
 ### Интерфейс IModalView
 Описывает модальное окно приложения. Интерфейс относится к слою представления.

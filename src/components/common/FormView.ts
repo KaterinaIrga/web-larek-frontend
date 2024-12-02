@@ -1,5 +1,4 @@
 import { Component } from '../base/Component';
-import { IFormFields, IForm } from '../../types/index';
 import { IEvents } from '../base/events';
 
 /* export interface IFormActions {

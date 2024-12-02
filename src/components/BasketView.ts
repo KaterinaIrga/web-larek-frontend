@@ -1,5 +1,4 @@
 import { Component } from './base/Component';
-import { IBasketView, ICardView } from '../types/index';
 import { IEvents } from './base/events';
 import { ensureElement, createElement } from '../utils/utils';
 
@@ -44,7 +43,6 @@ export class BasketView extends Component<IBasket> {
 			items.push(plug)
 		}
 		this._list.replaceChildren(...items);		
-		console.log(this._list)
 	}
 	set price(value: number) {
 		this._price.textContent = value + ' синапсов';
@@ -56,4 +54,9 @@ export class BasketView extends Component<IBasket> {
 		this._button = this.container.querySelector('.basket__button');
 		this.setTextContent(this._button, value);
 	}
+
+	lockBasketButton(value: boolean) {
+		this._button.disabled = value;
+	}
+
 }

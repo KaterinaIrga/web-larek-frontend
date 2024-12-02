@@ -24,6 +24,7 @@ export class BasketModel extends Model<IGood> {
 	}
 	clearBasket(): void {
 		this.itemsList.clear();
+		//this.events.emit()
 	}
 	isGoodInBasket(good: IGood): boolean {
 		return this.itemsList.has(good);
@@ -38,5 +39,13 @@ export class BasketModel extends Model<IGood> {
 	}
 	getBasketCount(): number {
 		return this.itemsList.size;
+	}
+	getBasketGoods(): string[] {
+    let result: string[] = []
+
+		for (let item of  this.itemsList) {
+			result.push(item.id)
+		}
+		return result;
 	}
 }

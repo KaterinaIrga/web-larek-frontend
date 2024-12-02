@@ -4,7 +4,7 @@ import { ensureElement } from '../utils/utils';
 import { IEvents } from './base/events';
 
 export class FormOrder extends FormView<
-	Pick<IOrderModel, 'address' | 'payType'>
+	Pick<IOrderModel, 'address' | 'payment'>
 > {
 	protected _buttonCash: HTMLButtonElement;
 	protected _buttonCard: HTMLButtonElement;
@@ -21,13 +21,11 @@ export class FormOrder extends FormView<
 		this.valid = false;
 
 		this._buttonCard.addEventListener('click', (e: Event) => {
-		//	const field = (e.target as HTMLButtonElement).name;
-			this.onInputChange('payType', 'card');
+			this.onInputChange('payment', 'card');
 		});
 
 		this._buttonCash.addEventListener('click', (e: Event) => {
-		//	const field = (e.target as HTMLButtonElement).name;
-			this.onInputChange('payType', 'cash');
+			this.onInputChange('payment', 'cash');
 		});
 	}
 	set address(value: string) {
