@@ -50,7 +50,7 @@ const formState: IFormState = { valid: false, errors: [] };
 Object.assign(orderData, formState);
 const formOrder = new FormOrder(cloneTemplate(orderTemplate), events);
 const formContacts = new FormContacts(cloneTemplate(contactsTemplate), events);
-const successCard = new SuccessView(cloneTemplate(successTemplate), events)
+const successCard = new SuccessView(cloneTemplate(successTemplate), events);
 
 events.on('goodModel:changed', () => {
 	page.gallery = data.getGoodList().map((item) => {
@@ -82,7 +82,7 @@ events.on('basket:open', () => {
 		return cardBasket.render(
 			Object.assign(item, { index: basketIndes++ })
 		) as HTMLLIElement;
-	})
+	});
 
 	if (basketData.getBasketSumm() === 0) {
 		basketView.lockBasketButton(true);
@@ -136,8 +136,8 @@ events.on('card:open', (item: IGood) => {
 });
 
 events.on('card:refresh', (cardPreview: CardView) => {
-	cardPreview.toggleLockBasketButton()
-})
+	cardPreview.toggleLockBasketButton();
+});
 
 events.on('basket:submit', () => {
 	//modalPreview.content =  formSecond.render()
@@ -169,18 +169,23 @@ events.on('order:submit', () => {
 });
 
 events.on('contacts:submit', () => {
-	events.emit('order:send', Object.assign(orderData, {total: basketData.getBasketSumm(), items: basketData.getBasketGoods()}) )
-	
-	});
+	events.emit(
+		'order:send',
+		Object.assign(orderData, {
+			total: basketData.getBasketSumm(),
+			items: basketData.getBasketGoods(),
+		})
+	);
+});
 
 events.on('order:send', (data: IOrderResponse) => {
-	console.log(data)
- 	api.sendOrder(data)
-	  .then((res) => {
-			successCard.result = basketData.getBasketSumm();
-	    modalPreview.content = successCard.render();
-		}) 
-})
+	api.sendOrder(data).then((res) => {
+		successCard.result = basketData.getBasketSumm();
+		basketData.clearBasket();
+		page.counter = String(basketData.getBasketCount());
+		modalPreview.content = successCard.render();
+	});
+});
 
 events.on('modal:open', () => {
 	page.locked = true;
@@ -193,8 +198,6 @@ events.on('modal:close', () => {
 
 events.on('success:close', () => {
 	page.locked = false;
-	basketData.clearBasket();
-	page.counter = String(basketData.getBasketCount());
 	modalPreview.close();
 });
 

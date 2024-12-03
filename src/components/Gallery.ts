@@ -4,7 +4,7 @@ import { IEvents } from './base/events';
 
 export interface IGallery {
 	gallery: IGood[];
-} 
+}
 
 export class Gallery extends Component<IGallery> {
 	protected _gallery: HTMLElement;

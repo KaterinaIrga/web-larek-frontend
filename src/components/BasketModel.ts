@@ -13,7 +13,7 @@ export class BasketModel extends Model<IGood> {
 	}
 	removeGood(good: IGood): Set<IGood> {
 		this.itemsList.delete(good);
-		return this.itemsList; 
+		return this.itemsList;
 	}
 	getBasket(): IGood[] {
 		const result: IGood[] = [];
@@ -41,10 +41,10 @@ export class BasketModel extends Model<IGood> {
 		return this.itemsList.size;
 	}
 	getBasketGoods(): string[] {
-    let result: string[] = []
+		let result: string[] = [];
 
-		for (let item of  this.itemsList) {
-			result.push(item.id)
+		for (let item of this.itemsList) {
+			result.push(item.id);
 		}
 		return result;
 	}

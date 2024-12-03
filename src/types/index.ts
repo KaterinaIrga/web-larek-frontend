@@ -24,9 +24,7 @@ export interface IOrderModel {
 	phone: string;
 }
 
-export interface IOrderResponse extends IOrderModel
- {
+export interface IOrderResponse extends IOrderModel {
 	total: number;
-  items: string[]; 
+	items: string[];
 }
-

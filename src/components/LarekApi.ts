@@ -6,27 +6,18 @@ interface ILarekApi {
 	getGoodList(): Promise<IGood[]>;
 }
 
-export class LarekApi extends Api  implements ILarekApi {
+export class LarekApi extends Api implements ILarekApi {
 	constructor(readonly cdn: string, baseUrl: string, options?: RequestInit) {
-		super(baseUrl, options)
+		super(baseUrl, options);
 	}
-	/* 
-  getGoodById(id: string): Promise<IGood> {
-    return this._api.get(`card/${id}`)
-      .then((item) => ({...item}))
-  } */
 
 	getGoodList(): Promise<IGood[]> {
-		return this
-			.get('/product')
-			.then((data: ApiListResponse<IGood>) =>
-				data.items.map((item) => ({ ...item, image: this.cdn + item.image }))
-			);
+		return this.get('/product').then((data: ApiListResponse<IGood>) =>
+			data.items.map((item) => ({ ...item, image: this.cdn + item.image }))
+		);
 	}
 
-	sendOrder(data: IOrderResponse){
-		return this
-		  .post('/order', data)
-			.then((data : IOrderResponse ) => data)
+	sendOrder(data: IOrderResponse) {
+		return this.post('/order', data).then((data: IOrderResponse) => data);
 	}
 }

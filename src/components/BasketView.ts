@@ -39,10 +39,10 @@ export class BasketView extends Component<IBasket> {
 	set content(items: HTMLLIElement[]) {
 		if (items.length === 0) {
 			const plug = createElement<HTMLLIElement>('p');
-			plug.textContent ='Корзина пуста';
-			items.push(plug)
+			plug.textContent = 'Корзина пуста';
+			items.push(plug);
 		}
-		this._list.replaceChildren(...items);		
+		this._list.replaceChildren(...items);
 	}
 	set price(value: number) {
 		this._price.textContent = value + ' синапсов';
@@ -58,5 +58,4 @@ export class BasketView extends Component<IBasket> {
 	lockBasketButton(value: boolean) {
 		this._button.disabled = value;
 	}
-
 }
