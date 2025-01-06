@@ -22,6 +22,9 @@ export class OrderModel extends Model<IOrderModel> {
 				break;
 			}
 			case 'payment': {
+
+console.log('setOrderField', value)
+
 				this.payment = value as Payment;
 				break;
 			}
@@ -29,7 +32,7 @@ export class OrderModel extends Model<IOrderModel> {
 				this.phone = value;
 			}
 		}
-
+console.log('this.CheckData(field)', this.CheckData(field))
 		if (this.CheckData(field)) {
 			if (['payment', 'address'].some(item => item === field)) {
 				this.events.emit('order:isOk', this);
@@ -42,22 +45,22 @@ export class OrderModel extends Model<IOrderModel> {
 	}
 	CheckData(field: keyof IOrderModel): boolean {
 		const errors: FormErrors = {};
-	  if (['payment', 'address'].some(item => item === field)) {
-			if (!this.payment) {
+	 // if (['payment', 'address'].some(item => item === field)) {
+			if (!this.payment && field === 'payment') {
 				errors.payment = 'Необходимо указать способ оплаты';
 			}
-			if (!this.address) {
+			if (!this.address && field === 'address') {
 				errors.address = 'Необходимо указать адрес';
 			}
-		} else {
-			if (!this.email) {
+		//} else {
+			if (!this.email && field === 'email') {
 				errors.email = 'Необходимо указать email';
 			}
 			
-			if (!this.phone) {
+			if (!this.phone && field === 'phone') {
 				errors.phone = 'Необходимо указать телефон';
 			}
-		}
+	//	}
 		
 		this.events.emit('formErrors:change', errors);
 		return Object.keys(errors).length === 0;

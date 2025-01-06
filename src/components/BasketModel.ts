@@ -44,7 +44,7 @@ export class BasketModel extends Model<IGood> {
 		let result: string[] = [];
 
 		for (let item of this.itemsList) {
-			result.push(item.id);
+			item.price ? result.push(item.id) : null;
 		}
 		return result;
 	}

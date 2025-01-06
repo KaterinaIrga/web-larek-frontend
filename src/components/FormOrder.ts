@@ -32,7 +32,10 @@ export class FormOrder extends FormView<
 		(this.container.elements.namedItem('address') as HTMLInputElement).value =
 			value;
 	}
-	set payType(value: string) {
+	set payment(value: string) {
+
+		console.log('button_alt-active', value)
+
 		this._buttonCard.classList.toggle('button_alt-active', value === 'card');
 		this._buttonCash.classList.toggle('button_alt-active', value === 'cash');
 	}

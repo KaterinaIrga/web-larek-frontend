@@ -1,13 +1,13 @@
 export abstract class Component<T> {
 	constructor(protected container: HTMLElement) {}
-	setVisible(element: HTMLElement, isVisible: boolean = true) {
+	setVisible(element: HTMLElement, isVisible = true) {
 		if (isVisible) {
 			element.style.visibility = 'visible';
 		} else {
 			element.style.visibility = 'hidden';
 		}
 	}
-	setDisable(element: HTMLElement, isDisable: boolean = true) {
+	setDisable(element: HTMLElement, isDisable = true) {
 		if (element) {
 			if (isDisable) {
 				element.setAttribute('disabled', 'disabled');
@@ -27,6 +27,16 @@ export abstract class Component<T> {
 			if (alt) {
 				element.alt = alt;
 			}
+		}
+	}
+	setClassName(element: HTMLElement, className: string) {
+		if (element) {
+			element.classList.add(className)
+		}
+	}
+	removeClassName(element: HTMLElement, className: string) {
+		if (element) {
+			element.classList.remove(className)
 		}
 	}
 	toggleClass(element: HTMLElement, className: string, force?: boolean) {

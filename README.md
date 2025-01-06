@@ -57,6 +57,8 @@ export abstract class Component<T> {
   setDisable(element: HTMLElement, isDisable: boolean = true) {};
   setTextContent(element: HTMLElement, value: string) {};
   setImage(element: HTMLElement, src: string, alt: string) {};
+  setClassName(element: HTMLElement, className: string) {};
+  removeClassName(element: HTMLElement, className: string) {};
   hasClass(element: HTMLElement, className: string): boolean {};
   toggleClass(element: HTMLElement, className: string, force?: boolean) {};
   render(data?: Partial<T>): HTMLElement {};
@@ -71,6 +73,8 @@ export abstract class Component<T> {
 - `setDisable` - метод делает элемент недоступным для взаимодействия. Входящий параметр - HTMLElement. Возвращаемого значениея нет;
 - `setTextContent` - метод устанавливает текстовое значение для элемента. Входящие параметры - HTMLElement и значение для установки. Возвращаемого значения нет;
 - `setImage` - метод устанавливает изображение для элемента. Входящие параметры - HTMLElement, ссылка на изображение, альтернативный текст. Возвращаемого значения нет;
+- `setClassName` - метод устанавливает класс для элемента. Входящие параметры - HTMLElement, имя класса. Возвращаемого значения нет;
+- `removeClassName` - метод удаляет класс у элемента. Входящие параметры - HTMLElement, имя класса. Возвращаемого значения нет; 
 - `hasClass` - метод проверяет наличие у элемента класса, переданного в качестве аргумента. Входящие параметры - HTMLElement, имя класса. Возвращает значение типа boolean.
 - `toggleClass` - метод добавляет переданный в качестве аргумента класс у элемента, если его нет и удаляет, если он есть. Входящие параметры - HTMLElement, имя класса. Возвращаемого значениея нет;
 - `render` - метод возвращает текущее значение поля component. Метод принимает в качестве необязательного входящего параметра данные для обновления содержимого элемента component. Тип возвращаемого значение - HTMLElement.

@@ -13,7 +13,7 @@ export class LarekApi extends Api implements ILarekApi {
 
 	getGoodList(): Promise<IGood[]> {
 		return this.get('/product').then((data: ApiListResponse<IGood>) =>
-			data.items.map((item) => ({ ...item, image: this.cdn + item.image }))
+			data.items.map((item: IGood) => ({ ...item, image: this.cdn + item.image }))
 		);
 	}
 

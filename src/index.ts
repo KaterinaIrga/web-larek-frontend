@@ -95,8 +95,13 @@ events.on('basket:open', () => {
 });
 
 events.on('good:delete', (item: IGood) => {
+	
 	basketData.removeGood(item);
-	page.counter = String(basketData.getBasketCount());
+	const basketCount = basketData.getBasketCount();
+	page.counter = String(basketCount);
+
+	basketView.lockBasketButton(basketCount === 0);
+	basketView.price = basketData.getBasketSumm();
 	basketView.content = basketData.getBasket().map((item) => {
 		const cardBasket = new CardView(
 			cloneTemplate(cardBasketTemplate),
@@ -140,19 +145,25 @@ events.on('card:refresh', (cardPreview: CardView) => {
 });
 
 events.on('basket:submit', () => {
-	//modalPreview.content =  formSecond.render()
-
 	modalPreview.content = formOrder.render(orderData as OrderModel & IFormState);
 });
 
 events.on(
 	/^order\..*:change/,
 	(data: { field: keyof IOrderModel; value: string }) => {
+
+	
 		orderData.setOrderField(data.field, data.value);
+		if (data.field === 'payment') {
+			formOrder.payment = data.value;
+		}
 	}
 );
 
-events.on('formErrors:change', (errors: FormErrors) => {});
+events.on('formErrors:change', (errors: FormErrors) => {
+	formOrder.errors = Object.values(errors).join(',')
+	console.log(errors)
+});
 
 events.on('order:isOk', (order: IOrderModel) => {
 	formOrder.valid = true;
@@ -169,6 +180,8 @@ events.on('order:submit', () => {
 });
 
 events.on('contacts:submit', () => {
+console.log(basketData.getBasketGoods())
+
 	events.emit(
 		'order:send',
 		Object.assign(orderData, {

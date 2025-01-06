@@ -74,6 +74,33 @@ export class CardView extends Component<IGood> {
 	}
 	set category(value: string) {
 		this.setTextContent(this._category, value);
+		switch (value) {
+			case 'софт-скил': {
+				this.setClassName(this._category, 'card__category_soft');
+				break;
+			}
+			case 'другое': {
+				this.setClassName(this._category, 'card__category_other');
+				this.removeClassName(this._category, 'card__category_soft');
+				break;
+			}
+			case 'дополнительное': {
+				this.setClassName(this._category, 'card__category_additional');
+				this.removeClassName(this._category, 'card__category_soft');
+				break;
+			}
+			case 'кнопка': {
+				this.setClassName(this._category, 'card__category_button');
+				this.removeClassName(this._category, 'card__category_soft');
+				break;
+			}
+			case 'хард-скил': {
+				this.setClassName(this._category, 'card__category_hard');
+				this.removeClassName(this._category, 'card__category_soft');
+
+				break;
+			}
+		}
 	}
 	set description(value: string) {
 		this.setTextContent(this._description, value);
