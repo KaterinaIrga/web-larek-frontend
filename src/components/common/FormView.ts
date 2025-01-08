@@ -43,9 +43,6 @@ export class FormView<T> extends Component<IFormState> {
 		input.placeholder = value;
 	}
 	onInputChange(field: string, value: string) {
-
-console.log('onInputChange', field, value)
-
 		this.events.emit(`order.${field}:change`, {
 			field,
 			value,
@@ -56,7 +53,6 @@ console.log('onInputChange', field, value)
 	}
 	render(data: Partial<T> & IFormState) {
 		const { valid, errors, ...inputs } = data;
-		console.log(errors)
 		super.render({ valid, errors });
 		Object.assign(this, inputs);
 		return this.container;

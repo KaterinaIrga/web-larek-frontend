@@ -95,7 +95,6 @@ events.on('basket:open', () => {
 });
 
 events.on('good:delete', (item: IGood) => {
-	
 	basketData.removeGood(item);
 	const basketCount = basketData.getBasketCount();
 	page.counter = String(basketCount);
@@ -151,8 +150,6 @@ events.on('basket:submit', () => {
 events.on(
 	/^order\..*:change/,
 	(data: { field: keyof IOrderModel; value: string }) => {
-
-	
 		orderData.setOrderField(data.field, data.value);
 		if (data.field === 'payment') {
 			formOrder.payment = data.value;
@@ -161,16 +158,26 @@ events.on(
 );
 
 events.on('formErrors:change', (errors: FormErrors) => {
-	formOrder.errors = Object.values(errors).join(',')
-	console.log(errors)
+	if ('payment' in errors || 'address' in errors || Object.keys(errors).length === 0) {
+		formOrder.errors = Object.values(errors).join(',');
+	} else {
+		formContacts.errors = Object.values(errors).join(',');
+	}
 });
 
-events.on('order:isOk', (order: IOrderModel) => {
+events.on('order:isOk', () => {
 	formOrder.valid = true;
 });
 
-events.on('contacts:isOk', (order: IOrderModel) => {
+events.on('contacts:isOk', () => {
 	formContacts.valid = true;
+});
+
+events.on('order:isNoOk', () => {
+	formOrder.valid = false;
+});
+events.on('contacts:isNoOk', () => {
+	formContacts.valid = false;
 });
 
 events.on('order:submit', () => {
@@ -180,8 +187,6 @@ events.on('order:submit', () => {
 });
 
 events.on('contacts:submit', () => {
-console.log(basketData.getBasketGoods())
-
 	events.emit(
 		'order:send',
 		Object.assign(orderData, {

@@ -33,9 +33,6 @@ export class FormOrder extends FormView<
 			value;
 	}
 	set payment(value: string) {
-
-		console.log('button_alt-active', value)
-
 		this._buttonCard.classList.toggle('button_alt-active', value === 'card');
 		this._buttonCash.classList.toggle('button_alt-active', value === 'cash');
 	}

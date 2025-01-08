@@ -22,9 +22,6 @@ export class OrderModel extends Model<IOrderModel> {
 				break;
 			}
 			case 'payment': {
-
-console.log('setOrderField', value)
-
 				this.payment = value as Payment;
 				break;
 			}
@@ -32,45 +29,45 @@ console.log('setOrderField', value)
 				this.phone = value;
 			}
 		}
-console.log('this.CheckData(field)', this.CheckData(field))
-		if (this.CheckData(field)) {
-			if (['payment', 'address'].some(item => item === field)) {
-				this.events.emit('order:isOk', this);
-			} else 
-			{
-				this.events.emit('contacts:isOk', this);
-			}
-			
-		}
+		this.CheckData(field);
 	}
+
 	CheckData(field: keyof IOrderModel): boolean {
 		const errors: FormErrors = {};
-	 // if (['payment', 'address'].some(item => item === field)) {
-			if (!this.payment && field === 'payment') {
-				errors.payment = 'Необходимо указать способ оплаты';
-			}
-			if (!this.address && field === 'address') {
-				errors.address = 'Необходимо указать адрес';
-			}
-		//} else {
-			if (!this.email && field === 'email') {
-				errors.email = 'Необходимо указать email';
-			}
-			
-			if (!this.phone && field === 'phone') {
-				errors.phone = 'Необходимо указать телефон';
-			}
-	//	}
-		
+
+		if (!this.payment && field === 'payment') {
+			errors.payment = 'Необходимо указать способ оплаты';
+		}
+		if (!this.address && field === 'address') {
+			errors.address = 'Необходимо указать адрес';
+		}
+
+		if (!this.email && field === 'email') {
+			errors.email = 'Необходимо указать email';
+		}
+
+		if (!this.phone && field === 'phone') {
+			errors.phone = 'Необходимо указать телефон';
+		}
+
+		if (['payment', 'address'].some((item) => item === field)) {
+			( Boolean(this.address) && Boolean(this.payment))
+				? this.events.emit('order:isOk', this)
+				:  this.events.emit('order:isNoOk', this);
+		} else {
+			( Boolean(this.email) && Boolean(this.phone))
+				? this.events.emit('contacts:isOk', this)
+				: this.events.emit('contacts:isNoOk', this);
+		}
+
 		this.events.emit('formErrors:change', errors);
 		return Object.keys(errors).length === 0;
 	}
 
-	clear(){
+	clear() {
 		this.payment = null;
 		this.address = '';
 		this.email = '';
 		this.phone = '';
 	}
-	
 }
